@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 from os import environ
-from typing import Dict, List
+from typing import Dict, List, Sequence
 
 from opentelemetry.exporter.otlp.proto.common._internal import (
     _encode_attributes,
@@ -43,7 +43,9 @@ from opentelemetry.sdk.metrics import (
 )
 from opentelemetry.sdk.metrics.export import (
     AggregationTemporality,
+    ExponentialHistogram as ExponentialHistogramType,
     Gauge,
+    Histogram as HistogramType,
     MetricExporter,
     MetricsData,
     Sum,
@@ -167,6 +169,12 @@ class OTLPMetricExporterMixin:
 
         return instrument_class_aggregation
 
+def truncate_trailing_zeros(lst: Sequence[int]) -> Sequence[int]:
+    if lst:
+        for i, value in enumerate(reversed(lst)):
+            if value != 0:
+                return lst[0:len(lst)-i]
+    return []
 
 class EncodingException(Exception):
     """
@@ -207,12 +215,17 @@ def encode_metrics(data: MetricsData) -> ExportMetricsServiceRequest:
 
 
 def _encode_resource_metrics(resource_metrics, resource_metrics_dict):
+
     resource = resource_metrics.resource
+
     # It is safe to assume that each entry in data.resource_metrics is
     # associated with an unique resource.
     scope_metrics_dict = {}
+
     resource_metrics_dict[resource] = scope_metrics_dict
+
     for scope_metrics in resource_metrics.scope_metrics:
+
         instrumentation_scope = scope_metrics.scope
 
         # The SDK groups metrics in instrumentation scopes already so
@@ -299,18 +312,19 @@ def _encode_metric(metric, pb2_metric):
 
     elif isinstance(metric.data, ExponentialHistogramType):
         for data_point in metric.data.data_points:
-            if data_point.positive.bucket_counts:
+
+            if positive_buckets := truncate_trailing_zeros(data_point.positive.bucket_counts):
                 positive = pb2.ExponentialHistogramDataPoint.Buckets(
                     offset=data_point.positive.offset,
-                    bucket_counts=data_point.positive.bucket_counts,
+                    bucket_counts=positive_buckets,
                 )
             else:
                 positive = None
 
-            if data_point.negative.bucket_counts:
+            if negative_buckets := truncate_trailing_zeros(data_point.negative.bucket_counts):
                 negative = pb2.ExponentialHistogramDataPoint.Buckets(
                     offset=data_point.negative.offset,
-                    bucket_counts=data_point.negative.bucket_counts,
+                    bucket_counts=negative_buckets,
                 )
             else:
                 negative = None
