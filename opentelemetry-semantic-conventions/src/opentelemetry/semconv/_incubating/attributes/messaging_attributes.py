@@ -26,11 +26,6 @@ MESSAGING_CLIENT_ID = "messaging.client.id"
 A unique identifier for the client that consumes or produces a message.
 """
 
-MESSAGING_CLIENT_ID = "messaging.client_id"
-"""
-Deprecated: Replaced by `messaging.client.id`.
-"""
-
 MESSAGING_DESTINATION_ANONYMOUS = "messaging.destination.anonymous"
 """
 A boolean that is true if the message destination is anonymous (could be unnamed or have auto-generated name).

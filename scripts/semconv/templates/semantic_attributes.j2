@@ -42,11 +42,12 @@ Note: {{ common.to_docstring(attribute.note | indent)}}.
 """
 {%- endmacro -%}
 
-{%- if root_namespace not in excluded_namespaces -%}
+{%- if root_namespace not in excluded_namespaces.split(' ') -%}
+{%- set excluded_attributes_list = excluded_attributes.split(' ') -%}
 {%- if filter != 'any' -%}
-{%- set filtered_attributes = attributes_and_templates | select(filter) | list -%}
+{%- set filtered_attributes = attributes_and_templates | rejectattr("fqn", "in", excluded_attributes) | select(filter) | list -%}
 {%- else -%}
-{%- set filtered_attributes = attributes_and_templates | list %}
+{%- set filtered_attributes = attributes_and_templates | rejectattr("fqn", "in", excluded_attributes) | list %}
 {%- endif -%}
 {%- if filtered_attributes | count > 0 -%}
 
