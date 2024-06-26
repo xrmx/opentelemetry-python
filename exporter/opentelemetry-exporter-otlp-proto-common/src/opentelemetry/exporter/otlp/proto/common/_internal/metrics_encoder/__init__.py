@@ -169,12 +169,24 @@ class OTLPMetricExporterMixin:
 
         return instrument_class_aggregation
 
+
 def truncate_trailing_zeros(lst: Sequence[int]) -> Sequence[int]:
     if lst:
         for i, value in enumerate(reversed(lst)):
             if value != 0:
                 return lst[0:len(lst)-i]
     return []
+
+
+def create_exponential_histogram_buckets(offset, bucket_counts):
+    buckets = None
+    if truncated_bucket_counts := truncate_trailing_zeros(bucket_counts):
+        buckets = pb2.ExponentialHistogramDataPoint.Buckets(
+                                offset=offset,
+                                bucket_counts=truncated_bucket_counts,
+                            )
+    return buckets
+
 
 class EncodingException(Exception):
     """
@@ -313,21 +325,8 @@ def _encode_metric(metric, pb2_metric):
     elif isinstance(metric.data, ExponentialHistogramType):
         for data_point in metric.data.data_points:
 
-            if positive_buckets := truncate_trailing_zeros(data_point.positive.bucket_counts):
-                positive = pb2.ExponentialHistogramDataPoint.Buckets(
-                    offset=data_point.positive.offset,
-                    bucket_counts=positive_buckets,
-                )
-            else:
-                positive = None
-
-            if negative_buckets := truncate_trailing_zeros(data_point.negative.bucket_counts):
-                negative = pb2.ExponentialHistogramDataPoint.Buckets(
-                    offset=data_point.negative.offset,
-                    bucket_counts=negative_buckets,
-                )
-            else:
-                negative = None
+            positive = create_exponential_histogram_buckets(data_point.positive.offset, data_point.positive.bucket_counts)
+            negative = create_exponential_histogram_buckets(data_point.negative.offset, data_point.negative.bucket_counts)
 
             pt = pb2.ExponentialHistogramDataPoint(
                 attributes=_encode_attributes(data_point.attributes),
