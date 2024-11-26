@@ -49,7 +49,7 @@ def update_sha(sha):
 
 def main():
     args = parse_args()
-    sha = get_sha(args.branch)
+    sha = args.branch if args.no_resolve else get_sha(args.branch)
     update_sha(sha)
 
 
@@ -58,6 +58,12 @@ def parse_args():
         description="Updates the SHA in the workflow file"
     )
     parser.add_argument("-b", "--branch", help="branch to use")
+    parser.add_argument(
+        "-n",
+        "--no-resolve",
+        help="don't resolve branch to sha",
+        action="store_true",
+    )
     return parser.parse_args()
 
 
