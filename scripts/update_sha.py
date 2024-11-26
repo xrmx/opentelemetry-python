@@ -21,11 +21,11 @@ from ruamel.yaml import YAML
 
 API_URL = "https://api.github.com/repos/open-telemetry/opentelemetry-python-contrib/commits/"
 workflow_files = [
-    ".github/workflows/test_0.yml"
-    ".github/workflows/test_1.yml"
-    ".github/workflows/misc_0.yml"
-    ".github/workflows/contrib_0.yml"
-    ".github/workflows/lint_0.yml"
+    ".github/workflows/test_0.yml",
+    ".github/workflows/test_1.yml",
+    ".github/workflows/misc_0.yml",
+    ".github/workflows/contrib_0.yml",
+    ".github/workflows/lint_0.yml",
 ]
 
 
