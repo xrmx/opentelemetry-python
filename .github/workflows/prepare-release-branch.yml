@@ -85,7 +85,7 @@ jobs:
       - name: Update contrib sha to match a branch with the same name of this
         run: |
           pip install ruamel.yaml
-          python3 scripts/update_sha.py -b $RELEASE_BRANCH_NAME
+          python3 scripts/update_sha.py -b $RELEASE_BRANCH_NAME -n
 
       - name: Update the change log with the approximate release date
         run: |
