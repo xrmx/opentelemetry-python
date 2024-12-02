@@ -219,6 +219,7 @@ class Meter(APIMeter):
             with self._instrument_id_instrument_lock:
                 return self._instrument_id_instrument[instrument_id]
 
+        # FIXME: validate advisory
         instrument = _Histogram(
             name,
             self._instrumentation_scope,

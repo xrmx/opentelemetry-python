@@ -218,7 +218,6 @@ class Meter(ABC):
         """
         return self._schema_url
 
-    # TODO: should we add advisory here too?
     def _is_instrument_registered(
         self, name: str, type_: type, unit: str, description: str
     ) -> Tuple[bool, str]:
