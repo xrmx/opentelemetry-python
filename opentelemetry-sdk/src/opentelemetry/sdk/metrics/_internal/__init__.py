@@ -196,7 +196,9 @@ class Meter(APIMeter):
             self._instrument_id_instrument[instrument_id] = instrument
             return instrument
 
-    def create_histogram(self, name, unit="", description="") -> APIHistogram:
+    def create_histogram(
+        self, name, unit="", description="", advisory=None
+    ) -> APIHistogram:
         (
             is_instrument_registered,
             instrument_id,
@@ -223,6 +225,7 @@ class Meter(APIMeter):
             self._measurement_consumer,
             unit,
             description,
+            advisory,
         )
         with self._instrument_id_instrument_lock:
             self._instrument_id_instrument[instrument_id] = instrument
