@@ -61,8 +61,42 @@ class ChildMeter(Meter):
 
 
 class TestMeter(TestCase):
-    # pylint: disable=no-member
-    def test_repeated_instrument_names(self):
+    def test_no_warnings_on_repeated_instrument_names(self):
+        try:
+            test_meter = NoOpMeter("name")
+
+            test_meter.create_counter("counter")
+            test_meter.create_up_down_counter("up_down_counter")
+            test_meter.create_observable_counter("observable_counter", Mock())
+            test_meter.create_histogram("histogram")
+            test_meter.create_gauge("gauge")
+            test_meter.create_observable_gauge("observable_gauge", Mock())
+            test_meter.create_observable_up_down_counter(
+                "observable_up_down_counter", Mock()
+            )
+        except Exception as error:  # pylint: disable=broad-exception-caught
+            self.fail(f"Unexpected exception raised {error}")
+
+        for instrument_name in [
+            "counter",
+            "up_down_counter",
+            "histogram",
+            "gauge",
+        ]:
+            with self.assertNoLogs(level=WARNING):
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(instrument_name)
+
+        for instrument_name in [
+            "observable_counter",
+            "observable_gauge",
+            "observable_up_down_counter",
+        ]:
+            with self.assertNoLogs(level=WARNING):
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(instrument_name, Mock())
+
+    def test_warnings_on_repeated_instrument_names_with_different_unit(self):
         try:
             test_meter = NoOpMeter("name")
 
@@ -85,9 +119,8 @@ class TestMeter(TestCase):
             "gauge",
         ]:
             with self.assertLogs(level=WARNING):
-                getattr(test_meter, f"create_{instrument_name}")(
-                    instrument_name
-                )
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(instrument_name, unit="a unit")
 
         for instrument_name in [
             "observable_counter",
@@ -95,8 +128,46 @@ class TestMeter(TestCase):
             "observable_up_down_counter",
         ]:
             with self.assertLogs(level=WARNING):
-                getattr(test_meter, f"create_{instrument_name}")(
-                    instrument_name, Mock()
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(instrument_name, Mock(), unit="a unit")
+
+    def test_warnings_on_repeated_instrument_names_with_different_description(
+        self,
+    ):
+        try:
+            test_meter = NoOpMeter("name")
+
+            test_meter.create_counter("counter")
+            test_meter.create_up_down_counter("up_down_counter")
+            test_meter.create_observable_counter("observable_counter", Mock())
+            test_meter.create_histogram("histogram")
+            test_meter.create_gauge("gauge")
+            test_meter.create_observable_gauge("observable_gauge", Mock())
+            test_meter.create_observable_up_down_counter(
+                "observable_up_down_counter", Mock()
+            )
+        except Exception as error:  # pylint: disable=broad-exception-caught
+            self.fail(f"Unexpected exception raised {error}")
+
+        for instrument_name in [
+            "counter",
+            "up_down_counter",
+            "histogram",
+            "gauge",
+        ]:
+            with self.assertLogs(level=WARNING):
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(instrument_name, description="a description")
+
+        for instrument_name in [
+            "observable_counter",
+            "observable_gauge",
+            "observable_up_down_counter",
+        ]:
+            with self.assertLogs(level=WARNING):
+                create_func = getattr(test_meter, f"create_{instrument_name}")
+                create_func(
+                    instrument_name, Mock(), description="a description"
                 )
 
     def test_create_counter(self):
