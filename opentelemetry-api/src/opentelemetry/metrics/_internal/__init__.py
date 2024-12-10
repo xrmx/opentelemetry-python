@@ -45,7 +45,7 @@ from abc import ABC, abstractmethod
 from logging import getLogger
 from os import environ
 from threading import Lock
-from typing import List, Optional, Sequence, Set, Tuple, Union, cast
+from typing import Dict, List, Optional, Sequence, Tuple, Union, cast
 
 from opentelemetry.environment_variables import OTEL_PYTHON_METER_PROVIDER
 from opentelemetry.metrics._internal.instrument import (
@@ -194,7 +194,7 @@ class Meter(ABC):
         self._name = name
         self._version = version
         self._schema_url = schema_url
-        self._instrument_ids: Set[str] = set()
+        self._instrument_ids: Dict[str, str] = {}
         self._instrument_ids_lock = Lock()
 
     @property
@@ -222,25 +222,25 @@ class Meter(ABC):
         self, name: str, type_: type, unit: str, description: str
     ) -> Tuple[bool, str]:
         """
-        Check if an instrument with the same name, type, unit and description
-        has been registered already.
+        Check if an instrument with the same name and type but different
+        unit or description has been registered already.
 
         Returns a tuple. The first value is `True` if the instrument has been
         registered already, `False` otherwise. The second value is the
         instrument id.
         """
 
-        instrument_id = ",".join(
-            [name.strip().lower(), type_.__name__, unit, description]
-        )
+        instrument_id = ",".join([name.strip().lower(), type_.__name__])
+        instrument_value = ",".join([unit, description])
 
         result = False
 
         with self._instrument_ids_lock:
-            if instrument_id in self._instrument_ids:
+            current_value = self._instrument_ids.get(instrument_id)
+            if current_value is not None and current_value != instrument_value:
                 result = True
             else:
-                self._instrument_ids.add(instrument_id)
+                self._instrument_ids[instrument_id] = instrument_value
 
         return (result, instrument_id)
 
