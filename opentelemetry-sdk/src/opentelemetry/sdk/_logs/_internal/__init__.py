@@ -181,7 +181,7 @@ class LogRecord(APILogRecord):
         severity_number: Optional[SeverityNumber] = None,
         body: AnyValue = None,
         resource: Optional[Resource] = None,
-        attributes: LogAttributes = None,
+        attributes: Optional[LogAttributes] = None,
         limits: Optional[LogLimits] = _UnsetLogLimits,
     ):
         super().__init__(
@@ -633,7 +633,7 @@ class LoggerProvider(APILoggerProvider):
         name: str,
         version: Optional[str] = None,
         schema_url: Optional[str] = None,
-        attributes: LogAttributes = None,
+        attributes: Optional[LogAttributes] = None,
     ) -> Logger:
         return Logger(
             self._resource,
@@ -667,7 +667,7 @@ class LoggerProvider(APILoggerProvider):
         name: str,
         version: Optional[str] = None,
         schema_url: Optional[str] = None,
-        attributes: LogAttributes = None,
+        attributes: Optional[LogAttributes] = None,
     ) -> Logger:
         if self._disabled:
             warnings.warn("SDK is disabled.")

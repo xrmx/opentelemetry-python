@@ -28,7 +28,7 @@ class TestProvider(_logs.NoOpLoggerProvider):
         name: str,
         version: typing.Optional[str] = None,
         schema_url: typing.Optional[str] = None,
-        attributes: LogAttributes = None,
+        attributes: typing.Optional[LogAttributes] = None,
     ) -> _logs.Logger:
         return LoggerTest(name)
 
