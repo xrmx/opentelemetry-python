@@ -191,29 +191,6 @@ class NoOpLogger(Logger):
     All operations are no-op.
     """
 
-    @overload
-    def emit(
-        self,
-        *,
-        timestamp: int | None = None,
-        observed_timestamp: int | None = None,
-        context: Context | None = None,
-        severity_number: SeverityNumber | None = None,
-        severity_text: str | None = None,
-        body: AnyValue | None = None,
-        attributes: _ExtendedAttributes | None = None,
-        event_name: str | None = None,
-    ) -> None: ...
-
-    @overload
-    @deprecated(
-        "Logger.emit with record parameter is deprecated since 1.38.0, use the keyword arguments instead."
-    )
-    def emit(
-        self,
-        record: LogRecord,
-    ) -> None: ...
-
     def emit(
         self,
         record: LogRecord | None = None,
@@ -259,29 +236,6 @@ class ProxyLogger(Logger):
             )
             return self._real_logger
         return self._noop_logger
-
-    @overload
-    def emit(
-        self,
-        *,
-        timestamp: int | None = None,
-        observed_timestamp: int | None = None,
-        context: Context | None = None,
-        severity_number: SeverityNumber | None = None,
-        severity_text: str | None = None,
-        body: AnyValue | None = None,
-        attributes: _ExtendedAttributes | None = None,
-        event_name: str | None = None,
-    ) -> None: ...
-
-    @overload
-    @deprecated(
-        "Logger.emit with record parameter is deprecated since 1.38.0, use the keyword arguments instead."
-    )
-    def emit(
-        self,
-        record: LogRecord,
-    ) -> None: ...
 
     def emit(
         self,
