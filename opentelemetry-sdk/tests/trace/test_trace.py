@@ -771,10 +771,12 @@ class TestSpanCreation(unittest.TestCase):  # pylint: disable=too-many-public-me
         decider = trace_continuation.RuleBasedTraceContinuationDecider(
             rules=(
                 trace_continuation.TraceContinuationRule(
+                    direction=trace_continuation.ContinuationDirection.INGRESS,
                     strategy=trace_continuation.Decision.RESTART_WITH_LINK,
                     attributes={"http.route": "/webhooks/*"},
                 ),
                 trace_continuation.TraceContinuationRule(
+                    direction=trace_continuation.ContinuationDirection.INGRESS,
                     strategy=trace_continuation.Decision.CONTINUE,
                     attributes={"http.route": "/webhooks/partner"},
                 ),
@@ -800,6 +802,7 @@ class TestSpanCreation(unittest.TestCase):  # pylint: disable=too-many-public-me
         decider = trace_continuation.RuleBasedTraceContinuationDecider(
             rules=(
                 trace_continuation.TraceContinuationRule(
+                    direction=trace_continuation.ContinuationDirection.INGRESS,
                     strategy=trace_continuation.Decision.CONTINUE,
                     attributes={"http.route": "/internal/*"},
                 ),
@@ -876,6 +879,7 @@ class TestSpanCreation(unittest.TestCase):  # pylint: disable=too-many-public-me
         decider = trace_continuation.RuleBasedTraceContinuationDecider(
             rules=(
                 trace_continuation.TraceContinuationRule(
+                    direction=trace_continuation.ContinuationDirection.INGRESS,
                     strategy=trace_continuation.Decision.RESTART_WITH_LINK,
                     attributes={"http.route": "/webhooks/*"},
                     link_attributes={
