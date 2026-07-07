@@ -4,6 +4,7 @@
 import logging
 import re
 
+from opentelemetry import context as context_api
 from opentelemetry import trace
 from opentelemetry.context.context import Context
 from opentelemetry.propagators import textmap
@@ -14,6 +15,28 @@ from opentelemetry.trace.span import (
 )
 
 _logger = logging.getLogger(__name__)
+
+_SUPPRESS_TRACE_CONTEXT_INJECTION_KEY = context_api.create_key(
+    "suppress-trace-context-injection"
+)
+
+
+def suppress_trace_context_injection(
+    context: Context | None = None,
+) -> Context:
+    """Returns a context that suppresses W3C Trace Context injection."""
+    return context_api.set_value(
+        _SUPPRESS_TRACE_CONTEXT_INJECTION_KEY, True, context
+    )
+
+
+def is_trace_context_injection_suppressed(
+    context: Context | None = None,
+) -> bool:
+    """Returns whether W3C Trace Context injection is suppressed."""
+    return bool(
+        context_api.get_value(_SUPPRESS_TRACE_CONTEXT_INJECTION_KEY, context)
+    )
 
 
 class TraceContextTextMapPropagator(textmap.TextMapPropagator):
@@ -106,6 +129,9 @@ class TraceContextTextMapPropagator(textmap.TextMapPropagator):
 
         See `opentelemetry.propagators.textmap.TextMapPropagator.inject`
         """
+        if is_trace_context_injection_suppressed(context):
+            return
+
         span = trace.get_current_span(context)
         span_context = span.get_span_context()
         if not span_context.is_valid:
